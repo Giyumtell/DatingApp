@@ -10,9 +10,12 @@ namespace API.Services
     public class TokenService : ITokenService
     {
         private readonly SymmetricSecurityKey _key;
+        private readonly IConfiguration _config;
+
         public TokenService(IConfiguration config) 
         {
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
+            _config = config;
         }
 
         public string CreateToken(AppUser user)
@@ -27,7 +30,8 @@ namespace API.Services
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.Now.AddDays(7),
-                SigningCredentials = cred
+                SigningCredentials = cred,
+                Issuer = _config["Issuer"]
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
